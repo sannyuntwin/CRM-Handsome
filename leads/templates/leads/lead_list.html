@@ -1,0 +1,51 @@
+{% extends 'leads/base.html' %}
+
+{% block title %}All Leads - CRM System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>All Leads</h1>
+    <a href="{% url 'lead_create' %}" class="btn btn-primary">Add New Lead</a>
+</div>
+
+{% if leads %}
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for lead in leads %}
+                <tr>
+                    <td>
+                        <a href="{% url 'lead_detail' lead.pk %}" class="text-decoration-none">
+                            {{ lead.first_name }} {{ lead.last_name }}
+                        </a>
+                    </td>
+                    <td>{{ lead.email }}</td>
+                    <td>{{ lead.phone }}</td>
+                    <td>{{ lead.date_created|date:"M d, Y" }}</td>
+                    <td>
+                        <a href="{% url 'lead_detail' lead.pk %}" class="btn btn-sm btn-info">View</a>
+                        <a href="{% url 'lead_update' lead.pk %}" class="btn btn-sm btn-warning">Edit</a>
+                        <a href="{% url 'lead_delete' lead.pk %}" class="btn btn-sm btn-danger">Delete</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="text-center">
+        <h3 class="text-muted">No leads found</h3>
+        <p class="text-muted">Start by adding your first lead.</p>
+        <a href="{% url 'lead_create' %}" class="btn btn-primary">Add Your First Lead</a>
+    </div>
+{% endif %}
+{% endblock %}
