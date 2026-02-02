@@ -7,7 +7,24 @@
     <div class="col-md-8">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h2>{{ lead.first_name }} {{ lead.last_name }}</h2>
+                <div>
+                    <h2>{{ lead.first_name }} {{ lead.last_name }}</h2>
+                    <div class="mt-2">
+                        {% if lead.status == 'new' %}
+                            <span class="badge bg-secondary fs-6">New</span>
+                        {% elif lead.status == 'contacted' %}
+                            <span class="badge bg-info fs-6">Contacted</span>
+                        {% elif lead.status == 'qualified' %}
+                            <span class="badge bg-primary fs-6">Qualified</span>
+                        {% elif lead.status == 'proposal_sent' %}
+                            <span class="badge bg-warning fs-6">Proposal Sent</span>
+                        {% elif lead.status == 'converted' %}
+                            <span class="badge bg-success fs-6">Converted</span>
+                        {% elif lead.status == 'lost' %}
+                            <span class="badge bg-danger fs-6">Lost</span>
+                        {% endif %}
+                    </div>
+                </div>
                 <div>
                     <a href="{% url 'lead_update' lead.pk %}" class="btn btn-warning">Edit</a>
                     <a href="{% url 'lead_delete' lead.pk %}" class="btn btn-danger">Delete</a>
@@ -42,7 +59,49 @@
                     <a href="{% url 'lead_list' %}" class="btn btn-secondary">Back to Leads</a>
                     <a href="{% url 'lead_update' lead.pk %}" class="btn btn-warning">Edit Lead</a>
                     <a href="{% url 'lead_delete' lead.pk %}" class="btn btn-danger">Delete Lead</a>
+                    <a href="{% url 'communication_create' lead.pk %}" class="btn btn-success">Add Communication</a>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5>Communication History</h5>
+                <a href="{% url 'communication_create' lead.pk %}" class="btn btn-sm btn-success">Add Communication</a>
+            </div>
+            <div class="card-body">
+                {% if communications %}
+                    {% for comm in communications %}
+                    <div class="border-bottom pb-3 mb-3">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="mb-1">
+                                    <span class="badge bg-primary">{{ comm.get_type_display }}</span>
+                                    {{ comm.subject }}
+                                </h6>
+                                <p class="text-muted mb-2">{{ comm.content|linebreaks }}</p>
+                                <small class="text-muted">
+                                    By {{ comm.created_by.get_full_name|default:comm.created_by.username }} 
+                                    on {{ comm.date_time|date:"M d, Y H:i" }}
+                                </small>
+                            </div>
+                            <div class="btn-group btn-group-sm">
+                                <a href="{% url 'communication_edit' lead.pk comm.pk %}" class="btn btn-outline-warning">Edit</a>
+                                <a href="{% url 'communication_delete' lead.pk comm.pk %}" class="btn btn-outline-danger">Delete</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center text-muted">
+                        <p>No communications recorded yet.</p>
+                        <a href="{% url 'communication_create' lead.pk %}" class="btn btn-success">Add First Communication</a>
+                    </div>
+                {% endif %}
             </div>
         </div>
     </div>

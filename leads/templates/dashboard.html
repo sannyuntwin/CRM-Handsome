@@ -1,0 +1,150 @@
+{% extends 'leads/base.html' %}
+
+{% block title %}Dashboard - CRM System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Dashboard</h1>
+    <div>
+        <span class="badge bg-primary">{{ user.get_full_name|default:user.username }}</span>
+        <span class="badge bg-secondary">{{ user_role|title }}</span>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">Total Leads</h5>
+                <h2 class="text-primary">{{ total_leads }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">Total Communications</h5>
+                <h2 class="text-info">{{ total_communications }}</h2>
+            </div>
+        </div>
+    </div>
+    {% for status, count in status_counts.items %}
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">{{ status|title }}</h5>
+                <h2 class="
+                    {% if status == 'new' %}text-secondary
+                    {% elif status == 'contacted' %}text-info
+                    {% elif status == 'qualified' %}text-primary
+                    {% elif status == 'proposal_sent' %}text-warning
+                    {% elif status == 'converted' %}text-success
+                    {% elif status == 'lost' %}text-danger
+                    {% endif %}
+                ">{{ count }}</h2>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5>Communication Types</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for comm_type, count in communication_types.items %}
+                    <div class="col-md-2 text-center">
+                        <div class="badge bg-secondary fs-6">{{ comm_type|title }}: {{ count }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5>Recent Communications</h5>
+    </div>
+    <div class="card-body">
+        {% if recent_communications %}
+            {% for comm in recent_communications %}
+            <div class="border-bottom pb-2 mb-2">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h6 class="mb-1">
+                            <span class="badge bg-primary">{{ comm.get_type_display }}</span>
+                            {{ comm.subject }}
+                        </h6>
+                        <small class="text-muted">
+                            with {{ comm.lead.first_name }} {{ comm.lead.last_name }} 
+                            on {{ comm.date_time|date:"M d, Y H:i" }}
+                        </small>
+                    </div>
+                    <div>
+                        <a href="{% url 'lead_detail' comm.lead.pk %}" class="btn btn-sm btn-outline-primary">View Lead</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p class="text-muted">No communications recorded yet.</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5>Recent Leads</h5>
+    </div>
+    <div class="card-body">
+        {% if recent_leads %}
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for lead in recent_leads %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'lead_detail' lead.pk %}">{{ lead.first_name }} {{ lead.last_name }}</a>
+                            </td>
+                            <td>{{ lead.email }}</td>
+                            <td>
+                                {% if lead.status == 'new' %}
+                                    <span class="badge bg-secondary">New</span>
+                                {% elif lead.status == 'contacted' %}
+                                    <span class="badge bg-info">Contacted</span>
+                                {% elif lead.status == 'qualified' %}
+                                    <span class="badge bg-primary">Qualified</span>
+                                {% elif lead.status == 'proposal_sent' %}
+                                    <span class="badge bg-warning">Proposal Sent</span>
+                                {% elif lead.status == 'converted' %}
+                                    <span class="badge bg-success">Converted</span>
+                                {% elif lead.status == 'lost' %}
+                                    <span class="badge bg-danger">Lost</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ lead.date_created|date:"M d, Y" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="text-muted">No leads found.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
